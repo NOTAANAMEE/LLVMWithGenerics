@@ -8,8 +8,6 @@ public partial class GenericStaticFunc(string name, GenericModule module) :
 {
     public string Name { get; } = name;
 
-    private readonly GenericModule _module = module;
-
     public List<GenericTemplate> GenericTemplates { get; } = [];
 
     public List<IType> Parameters = [];

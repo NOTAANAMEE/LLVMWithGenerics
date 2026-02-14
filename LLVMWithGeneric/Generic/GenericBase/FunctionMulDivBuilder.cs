@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using LLVMSharp.Interop;
 
 namespace LLVMWithGeneric.Generic;
@@ -37,7 +38,7 @@ public partial class GenericStaticFunc
                 MulDivType.FDIV => builder.BuildFDiv(lhs, rhs, Return.Name),
 
                 // Default, impossible to reach
-                _ => throw new ArgumentOutOfRangeException()
+                _ => throw new UnreachableException()
             };
 
             valueContext[Return.ID] = value;

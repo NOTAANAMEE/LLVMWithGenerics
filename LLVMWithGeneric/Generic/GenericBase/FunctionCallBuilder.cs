@@ -12,28 +12,24 @@ public partial class GenericStaticFunc
         string name
         ) : IOperation
     {
-        private readonly ILType   _returnType = returnType;
-        private readonly ILType[] _paramTypes = parameterTypes;
-        private readonly LLVMValueRef _function = function;
-        private readonly GenericValue[] _arguments = arguments;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
         
         public void Instantiate(
-            LLVMValueRef function,
+            LLVMValueRef function1,
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
             Dictionary<ulong, LLVMValueRef> valueContext, 
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext, 
             GenericModule module)
         {
             var builder = module.Builder;
-            var retType = _returnType.Type;
-            var paramTypes = _paramTypes.Select(
+            var retType = returnType.Type;
+            var paramTypes = parameterTypes.Select(
                 t => t.Type).ToArray();
             var funcType = LLVMTypeRef.CreateFunction(retType, paramTypes);
             var ret = builder.BuildCall2(
                 funcType,
-                _function,
-                _arguments.Select(v => GetLLVMValueRef(valueContext, v)).ToArray(),
+                function,
+                arguments.Select(v => GetLLVMValueRef(valueContext, v)).ToArray(),
                 Return.Name
             );
             valueContext[Return.ID] = ret;
@@ -41,7 +37,7 @@ public partial class GenericStaticFunc
     }
 
     private class GenericFuncCallOperation(
-        IType returnType,
+        IType type,
         IType[] parameterTypes,
         IType[] genericTypeList,
         GenericStaticFunc function,
@@ -49,16 +45,12 @@ public partial class GenericStaticFunc
         string name
     ) : IOperation
     {
-        private readonly IType _returnType = returnType;
-        private readonly IType[] _paramTypes = parameterTypes;
-        private readonly GenericStaticFunc _function = function;
-        private readonly GenericValue[] _arguments = arguments;
         private readonly Dictionary<GenericTemplate, IType> _fnTypeContext =
             MakeTypeContext(function.GenericTemplates.ToArray(), genericTypeList);
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
         
         public void Instantiate(
-            LLVMValueRef function,
+            LLVMValueRef function1,
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
             Dictionary<ulong, LLVMValueRef> valueContext, 
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext, 
@@ -68,16 +60,16 @@ public partial class GenericStaticFunc
             // 1. make function type context
             var fnFinalTypeContext = InstantiateTypeContext(typeContext, _fnTypeContext);
             // 2. instantiate function
-            var fn = _function.Instantiate(fnFinalTypeContext);
+            var fn = function.Instantiate(fnFinalTypeContext);
             // 3. instantiate fn type
-            var callerParams = _paramTypes.Select(a => InstantiateType(typeContext, a)).ToArray();
-            var returnType = InstantiateType(typeContext, _returnType);
+            var callerParams = parameterTypes.Select(a => InstantiateType(typeContext, a)).ToArray();
+            var returnType = InstantiateType(typeContext, type);
             var fnType = LLVMTypeRef.CreateFunction(returnType, callerParams);
             // 4. Final build
             var ret = builder.BuildCall2(
                 fnType,
                 fn,
-                _arguments.Select(v => GetLLVMValueRef(valueContext, v)).ToArray(),
+                arguments.Select(v => GetLLVMValueRef(valueContext, v)).ToArray(),
                 Return.Name
             );
             valueContext[Return.ID] = ret;
@@ -115,11 +107,6 @@ public partial class GenericStaticFunc
         string name
         ): IOperation
     {
-        private readonly ILType _returnType = returnType;
-        private readonly ILType[] _paramTypes = parameterTypes;
-        private readonly IType _funcOwner = funcOwner;
-        private readonly string _funcName = funcName;
-        private readonly GenericValue[] _arguments = arguments;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
         public void Instantiate(
@@ -129,18 +116,19 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext, 
             GenericModule module)
         {
-            var function = module.Register.GetInstanceFunc(_funcOwner, _funcName);
-            if (function is not GenericValueFromLLVM gvfl)  throw new Exception();
+            var function = module.Register.GetInstanceFunc(funcOwner, funcName);
+            if (function is not GenericValueFromLLVM gvfl)  
+                throw new InvalidOperationException("function is not an LLVM function");
             var _function = gvfl.Value;
             var builder = module.Builder;
-            var retType = _returnType.Type;
-            var paramTypes = _paramTypes.Select(
+            var retType = returnType.Type;
+            var paramTypes = parameterTypes.Select(
                 t => t.Type).ToArray();
             var funcType = LLVMTypeRef.CreateFunction(retType, paramTypes);
             var ret = builder.BuildCall2(
                 funcType,
                 _function,
-                _arguments.Select(v => GetLLVMValueRef(valueContext, v)).ToArray(),
+                arguments.Select(v => GetLLVMValueRef(valueContext, v)).ToArray(),
                 Return.Name
             );
             valueContext[Return.ID] = ret;
@@ -148,7 +136,7 @@ public partial class GenericStaticFunc
     }
     
     private class PolymorphismGenericCallOperation(
-        IType returnType,
+        IType type,
         IType[] parameterTypes,
         IType[] genericTypeList,
         IType funcOwner,
@@ -157,11 +145,6 @@ public partial class GenericStaticFunc
         string name
     ): IOperation
     {
-        private readonly IType _returnType = returnType;
-        private readonly IType[] _paramTypes = parameterTypes;
-        private readonly IType _funcOwner = funcOwner;
-        private readonly string _funcName = funcName;
-        private readonly GenericValue[] _arguments = arguments;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
         public void Instantiate(
@@ -171,8 +154,9 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext, 
             GenericModule module)
         {
-            var function = module.Register.GetInstanceFunc(_funcOwner, _funcName);
-            if (function is not GenericStaticFunc _function)  throw new Exception();
+            var function = module.Register.GetInstanceFunc(funcOwner, funcName);
+            if (function is not GenericStaticFunc _function)  
+                throw new InvalidOperationException("function is not a generic static function");
             var _fnTypeContext = 
                 GenericFuncCallOperation.MakeTypeContext(_function.GenericTemplates.ToArray(), genericTypeList);
             var builder = module.Builder;
@@ -182,14 +166,14 @@ public partial class GenericStaticFunc
             // 2. instantiate function
             var fn = _function.Instantiate(fnFinalTypeContext);
             // 3. instantiate fn type
-            var callerParams = _paramTypes.Select(a => InstantiateType(typeContext, a)).ToArray();
-            var returnType = InstantiateType(typeContext, _returnType);
+            var callerParams = parameterTypes.Select(a => InstantiateType(typeContext, a)).ToArray();
+            var returnType = InstantiateType(typeContext, type);
             var fnType = LLVMTypeRef.CreateFunction(returnType, callerParams);
             // 4. Final build
             var ret = builder.BuildCall2(
                 fnType,
                 fn,
-                _arguments.Select(v => GetLLVMValueRef(valueContext, v)).ToArray(),
+                arguments.Select(v => GetLLVMValueRef(valueContext, v)).ToArray(),
                 Return.Name
             );
             valueContext[Return.ID] = ret;

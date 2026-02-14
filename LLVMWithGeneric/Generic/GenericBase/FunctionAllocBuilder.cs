@@ -9,8 +9,6 @@ public partial class GenericStaticFunc
         string name,
         bool onMem): IOperation
     {
-        private readonly IType _type = type;
-        private readonly bool _onMem = onMem;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
 
@@ -20,10 +18,10 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext,
             GenericModule module)
         {
-            var type = InstantiateType(typeContext, _type);
+            var type1 = InstantiateType(typeContext, type);
             var value
-             = _onMem ? module.Builder.BuildMalloc(type, Return.Name) : 
-                module.Builder.BuildAlloca(type, Return.Name);
+             = onMem ? module.Builder.BuildMalloc(type1, Return.Name) : 
+                module.Builder.BuildAlloca(type1, Return.Name);
             valueContext[Return.ID] = value;
         }
     }
@@ -34,9 +32,6 @@ public partial class GenericStaticFunc
         string name,
         bool onMem): IOperation
     {
-        private readonly IType _type = type;
-        private readonly bool _onMem = onMem;
-        private readonly GenericValue _value = value;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
 
@@ -46,19 +41,17 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext,
             GenericModule module)
         {
-            var type = InstantiateType(typeContext, _type);
-            var numValue = GetLLVMValueRef(valueContext, _value);
-            var value
-                = _onMem ? module.Builder.BuildArrayMalloc(type, numValue, Return.Name) : 
-                    module.Builder.BuildArrayAlloca(type, numValue, Return.Name);
-            valueContext[Return.ID] = value;
+            var type1 = InstantiateType(typeContext, type);
+            var numValue = GetLLVMValueRef(valueContext, value);
+            var value1
+                = onMem ? module.Builder.BuildArrayMalloc(type1, numValue, Return.Name) : 
+                    module.Builder.BuildArrayAlloca(type1, numValue, Return.Name);
+            valueContext[Return.ID] = value1;
         }
     }
 
     private class FreeBuilder(GenericValue pointer): IOperation
     {
-        private readonly GenericValue _pointer = pointer;
-
         public void Instantiate(
             LLVMValueRef function, 
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
@@ -67,7 +60,7 @@ public partial class GenericStaticFunc
             GenericModule module)
         {
             module.Builder.BuildFree(
-                GetLLVMValueRef(valueContext, _pointer));
+                GetLLVMValueRef(valueContext, pointer));
         }
     }
 
@@ -76,9 +69,6 @@ public partial class GenericStaticFunc
         GenericValue pointer,
         string name) : IOperation
     {
-        private readonly IType _type = type;
-        private readonly GenericValue _pointer = pointer;
-        
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
         public void Instantiate(LLVMValueRef function, 
@@ -87,10 +77,10 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext,
             GenericModule module)
         {
-            var type = InstantiateType(typeContext, _type);
+            var type1 = InstantiateType(typeContext, type);
             var ret = module.Builder.BuildLoad2(
-                type,
-                GetLLVMValueRef(valueContext, _pointer),
+                type1,
+                GetLLVMValueRef(valueContext, pointer),
                 Return.Name);
             valueContext[Return.ID] = ret;
         }
@@ -100,10 +90,6 @@ public partial class GenericStaticFunc
         GenericValue value,
         GenericValue pointer): IOperation
     {
-        private readonly GenericValue _value = value;
-        private readonly GenericValue _pointer = pointer;
-
-
         public void Instantiate(
             LLVMValueRef function, 
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
@@ -112,8 +98,8 @@ public partial class GenericStaticFunc
             GenericModule module)
         {
             module.Builder.BuildStore(
-                GetLLVMValueRef(valueContext, _value),
-                GetLLVMValueRef(valueContext, _pointer)
+                GetLLVMValueRef(valueContext, value),
+                GetLLVMValueRef(valueContext, pointer)
             );
         }
     }
@@ -125,11 +111,6 @@ public partial class GenericStaticFunc
         string name,
         bool inbound): IOperation
     {
-        private readonly IType _type = type;
-        private readonly GenericValue _pointer = pointer;
-        private readonly GenericValue[] _idices = idices;
-        private readonly bool _inbound = inbound;
-        
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
 
@@ -140,14 +121,14 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext,
             GenericModule module)
         {
-            var type = InstantiateType(typeContext, _type);
-            var idices = _idices
+            var type1 = InstantiateType(typeContext, type);
+            var idices1 = idices
                 .Select(v => GetLLVMValueRef(valueContext, v))
                 .ToArray();
-            var pointer = GetLLVMValueRef(valueContext, _pointer);
-            var ret = _inbound? 
-                module.Builder.BuildInBoundsGEP2(type, pointer, idices, Return.Name) : 
-                module.Builder.BuildGEP2(type, pointer, idices, Return.Name);
+            var pointer1 = GetLLVMValueRef(valueContext, pointer);
+            var ret = inbound? 
+                module.Builder.BuildInBoundsGEP2(type1, pointer1, idices1, Return.Name) : 
+                module.Builder.BuildGEP2(type1, pointer1, idices1, Return.Name);
             valueContext[Return.ID] = ret;
         }
     }
@@ -158,10 +139,6 @@ public partial class GenericStaticFunc
         uint idx,
         string name): IOperation
     {
-        private readonly IType _type = type;
-        private readonly GenericValue _pointer = pointer;
-        private readonly uint _idx = idx;
-        
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
 
@@ -172,10 +149,10 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext,
             GenericModule module)
         {
-            var type = InstantiateType(typeContext, _type);
-            var pointer = GetLLVMValueRef(valueContext, _pointer);
+            var type1 = InstantiateType(typeContext, type);
+            var pointer1 = GetLLVMValueRef(valueContext, pointer);
             var ret = module.Builder.BuildStructGEP2(
-                type, pointer, _idx, Return.Name);
+                type1, pointer1, idx, Return.Name);
             valueContext[Return.ID] = ret;
         }
     }

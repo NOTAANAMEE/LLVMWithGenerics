@@ -91,7 +91,6 @@ public partial class GenericStaticFunc
 
     private class NotOperation(GenericValue Value, string name) : IOperation
     {
-        private readonly GenericValue _value = Value;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
         public void Instantiate(
@@ -102,7 +101,7 @@ public partial class GenericStaticFunc
             GenericModule module)
         {
             var builder = module.Builder;
-            var v = GetLLVMValueRef(valueContext, _value);
+            var v = GetLLVMValueRef(valueContext, Value);
 
             // all-ones constant with same type as v
             var allOnes = LLVMValueRef.CreateConstAllOnes(v.TypeOf);

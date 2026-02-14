@@ -9,11 +9,8 @@ public partial class GenericStaticFunc
         string name,
         AddSubType type) : IOperation
     {
-        private readonly GenericValue _lhs = LHS;
-        private readonly GenericValue _rhs = RHS;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
-        private readonly AddSubType _type = type;
-        
+
         public void Instantiate(
             LLVMValueRef function,
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
@@ -22,9 +19,9 @@ public partial class GenericStaticFunc
             GenericModule module)
         {
             var builder = module.Builder;
-            var lhs = GetLLVMValueRef(valueContext, _lhs);
-            var rhs = GetLLVMValueRef(valueContext, _rhs);
-            var value = _type switch
+            var lhs = GetLLVMValueRef(valueContext, LHS);
+            var rhs = GetLLVMValueRef(valueContext, RHS);
+            var value = type switch
             {
                 AddSubType.ADD => builder.BuildAdd(lhs, rhs, Return.Name),
                 AddSubType.FADD => builder.BuildFAdd(lhs, rhs, Return.Name),
@@ -51,7 +48,7 @@ public partial class GenericStaticFunc
         {
             GenericFuncVariable genVal => valueContext[genVal.ID],
             GenericValueFromLLVM llvmVal => llvmVal.Value,
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new UnreachableException()
         };
     }
     

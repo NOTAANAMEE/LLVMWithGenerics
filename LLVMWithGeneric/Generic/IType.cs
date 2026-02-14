@@ -1,4 +1,3 @@
-using System.Drawing;
 using LLVMSharp.Interop;
 
 namespace LLVMWithGeneric.Generic;
@@ -34,7 +33,9 @@ public class GenericTypeReference : IType
             string.Join(",", generics.Select(g => g.Name))
         }>";
         if (generics.Length != type.GenericTemplates.Count) 
-            throw new ArgumentException();
+            throw new ArgumentException(
+                $"Length of generics must match. Expected {type.GenericTemplates.Count}, got {generics.Length}"
+                );
         GenericArguments = new Dictionary<GenericTemplate, IType>();
         for (var i = 0; i < type.GenericTemplates.Count; i++) 
             GenericArguments[type.GenericTemplates[i]] = generics[i];

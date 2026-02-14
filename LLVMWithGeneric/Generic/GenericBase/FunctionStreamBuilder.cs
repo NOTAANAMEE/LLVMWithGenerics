@@ -6,7 +6,6 @@ public partial class GenericStaticFunc
 {
     private class BrBuilder(GenericFuncBlock block) : IOperation
     {
-        private readonly GenericFuncBlock _block = block;
         public void Instantiate(
             LLVMValueRef function,
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
@@ -14,7 +13,7 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext, 
             GenericModule module)
         {
-            module.Builder.BuildBr(blockContext[_block]);
+            module.Builder.BuildBr(blockContext[block]);
         }
     }
     
@@ -23,9 +22,6 @@ public partial class GenericStaticFunc
         GenericFuncBlock thenBlock,
         GenericFuncBlock elseBlock) : IOperation
     {
-        private readonly GenericValue _cond = cond;
-        private readonly GenericFuncBlock _thenBlock = thenBlock;
-        private readonly GenericFuncBlock _elseBlock = elseBlock;
         public void Instantiate(
             LLVMValueRef function,
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
@@ -34,9 +30,9 @@ public partial class GenericStaticFunc
             GenericModule module)
         {
             module.Builder.BuildCondBr(
-                GetLLVMValueRef(valueContext, _cond),
-                blockContext[_thenBlock],
-                blockContext[_elseBlock]);
+                GetLLVMValueRef(valueContext, cond),
+                blockContext[thenBlock],
+                blockContext[elseBlock]);
         }
     }
     
@@ -44,8 +40,6 @@ public partial class GenericStaticFunc
         GenericBlockValue blockValue,
         uint numJumps) : IOperation
     {
-        private readonly GenericBlockValue _blockValue = blockValue;
-        private readonly uint _numJumps = numJumps;
         public GenericIndirectBrValue Ret { get; } = new GenericIndirectBrValue();
         public void Instantiate(
             LLVMValueRef function,
@@ -54,7 +48,7 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext, 
             GenericModule module)
         {
-            var block = blockContext[_blockValue.Block];
+            var block = blockContext[blockValue.Block];
             LLVMValueRef addrValue;
             unsafe
             {
@@ -66,7 +60,7 @@ public partial class GenericStaticFunc
                     Handle = (IntPtr)addr
                 };
             }
-            var p = module.Builder.BuildIndirectBr(addrValue, _numJumps);
+            var p = module.Builder.BuildIndirectBr(addrValue, numJumps);
             foreach (var gotoBlock in Ret.GotoBlocks) 
                 unsafe
                 {
@@ -81,8 +75,6 @@ public partial class GenericStaticFunc
     
     private class ReturnBuilder(GenericValue value) : IOperation
     {
-        private readonly GenericValue _value = value;
-        
         public void Instantiate(
             LLVMValueRef function, 
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
@@ -90,7 +82,7 @@ public partial class GenericStaticFunc
             Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext,
             GenericModule module)
         {
-            module.Builder.BuildRet(GetLLVMValueRef(valueContext, _value));
+            module.Builder.BuildRet(GetLLVMValueRef(valueContext, value));
         }
     }
     
@@ -126,12 +118,6 @@ public partial class GenericStaticFunc
         uint numJumps
         ) : IOperation
     {
-        private readonly GenericValue _value = value;
-        
-        private readonly GenericFuncBlock _defaultBlock = defaultBlock;
-        
-        private readonly uint _numJumps = numJumps;
-        
         public GenericSwitchValue Ret { get; } = new GenericSwitchValue();
         
         public void Instantiate(
@@ -142,9 +128,9 @@ public partial class GenericStaticFunc
             GenericModule module)
         {
             module.Builder.BuildSwitch(
-                GetLLVMValueRef(valueContext, _value),
-                blockContext[_defaultBlock], 
-                _numJumps);
+                GetLLVMValueRef(valueContext, value),
+                blockContext[defaultBlock], 
+                numJumps);
         }
     }
     
