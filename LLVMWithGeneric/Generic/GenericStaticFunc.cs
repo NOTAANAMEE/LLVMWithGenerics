@@ -3,15 +3,30 @@ using LLVMSharp.Interop;
 
 namespace LLVMWithGeneric.Generic;
 
+/// <summary>
+/// Generic static function definition that can be instantiated into an LLVM function.
+/// </summary>
 public partial class GenericStaticFunc(string name, GenericModule module) : 
     GenericValue, GenericBase
 {
+    /// <summary>
+    /// Base function name (before mangling).
+    /// </summary>
     public string Name { get; } = name;
 
+    /// <summary>
+    /// Template parameters for this function.
+    /// </summary>
     public List<GenericTemplate> GenericTemplates { get; } = [];
 
+    /// <summary>
+    /// Function parameters in declared order.
+    /// </summary>
     public List<IType> Parameters = [];
 
+    /// <summary>
+    /// Return type of the function.
+    /// </summary>
     public IType ReturnType = new ILType(LLVMTypeRef.Void);
 
     internal void AddGenericTemplate(List<string> names)
@@ -22,11 +37,17 @@ public partial class GenericStaticFunc(string name, GenericModule module) :
         }
     }
 
+    /// <summary>
+    /// Sets the function parameters.
+    /// </summary>
     public void SetParameter(List<IType> parameters)
     {
         this.Parameters = parameters;
     }
 
+    /// <summary>
+    /// Sets the return type of the function.
+    /// </summary>
     public void SetReturnType(IType returnType)
     {
         ReturnType = returnType;
