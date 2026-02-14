@@ -26,12 +26,11 @@ public partial class GenericStaticFunc(string name, GenericModule module) :
 
     public void SetParameter(List<IType> parameters)
     {
-        parameters = parameters;
+        this.Parameters = parameters;
     }
 
     public void SetReturnType(IType returnType)
     {
         ReturnType = returnType;
     }
-    
 }

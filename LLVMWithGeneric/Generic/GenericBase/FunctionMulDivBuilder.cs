@@ -8,10 +8,7 @@ public partial class GenericStaticFunc
         string name,
         MulDivType type) : IOperation
     {
-        private readonly GenericValue _lhs = LHS;
-        private readonly GenericValue _rhs = RHS;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
-        private readonly MulDivType _type = type;
 
         public void Instantiate(
             LLVMValueRef function,
@@ -21,10 +18,10 @@ public partial class GenericStaticFunc
             GenericModule module)
         {
             var builder = module.Builder;
-            var lhs = GetLLVMValueRef(valueContext, _lhs);
-            var rhs = GetLLVMValueRef(valueContext, _rhs);
+            var lhs = GetLLVMValueRef(valueContext, LHS);
+            var rhs = GetLLVMValueRef(valueContext, RHS);
 
-            var value = _type switch
+            var value = type switch
             {
                 // Mul
                 MulDivType.MUL => builder.BuildMul(lhs, rhs, Return.Name),
@@ -39,6 +36,7 @@ public partial class GenericStaticFunc
 
                 MulDivType.FDIV => builder.BuildFDiv(lhs, rhs, Return.Name),
 
+                // Default, impossible to reach
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -96,7 +94,7 @@ public partial class GenericStaticFunc
         => BuildMulDiv(LHS, RHS, name, MulDivType.UDIV);
 
     /// <summary>
-    /// 我保证整除（无余数），否则就是 UB（给优化器的承诺）
+    /// No remainder, otherwise, UB
     /// </summary>
     public GenericValue BuildExactSDiv(GenericValue LHS, GenericValue RHS, string name)
         => BuildMulDiv(LHS, RHS, name, MulDivType.EXACTSDIV);

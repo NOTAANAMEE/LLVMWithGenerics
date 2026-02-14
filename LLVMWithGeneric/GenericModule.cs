@@ -18,6 +18,20 @@ public class GenericModule
     
     internal Dictionary<string, LLVMTypeRef> InstantiatedTypes = [];
 
+    public GenericModule(
+        LLVMContextRef context,
+        LLVMModuleRef module,
+        LLVMBuilderRef builder,
+        GenericMangler mangler,
+        TypeRegister register)
+    {
+        Context = context;
+        Module = module;
+        Builder = builder;
+        Mangler = mangler;
+        Register = register;
+    }
+
     public GenericStaticFunc AddFunction(
         string name, List<string> genericTemplates)
     {
@@ -32,5 +46,19 @@ public class GenericModule
         var type = new GenericType(name, this, packed);
         type.AddGenericTemplate(genericTemplates);
         return type;
+    }
+
+    public LLVMValueRef InstantiateFunction(
+        GenericStaticFunc func,
+        Dictionary<GenericTemplate, LLVMTypeRef> typeContext)
+    {
+        return func.Instantiate(typeContext);
+    }
+
+    public LLVMTypeRef InstantiateType(
+        GenericType type,
+        Dictionary<GenericTemplate, LLVMTypeRef> typeContext)
+    {
+        return type.Instantiate(typeContext);
     }
 }

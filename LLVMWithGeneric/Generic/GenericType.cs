@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using LLVMSharp.Interop;
 
 namespace LLVMWithGeneric.Generic;
@@ -8,13 +9,13 @@ public class GenericType(string name, GenericModule module, bool packed): Generi
 
     public string Name { get; } = name;
     
-    public bool Packed { get; } =  false;
+    public bool Packed { get; } = packed;
     
     public List<GenericTemplate> GenericTemplates { get; } = [];
 
     public IType[] Fields { get; private set; } = [];
 
-    private LLVMTypeRef Instantiate(
+    internal LLVMTypeRef Instantiate(
         Dictionary<GenericTemplate, LLVMTypeRef> typeContext)
     {
         var instantiatedTypes = GenericTemplates
@@ -48,7 +49,7 @@ public class GenericType(string name, GenericModule module, bool packed): Generi
     
     public static LLVMTypeRef InstantiateGenericType(
         Dictionary<GenericTemplate, LLVMTypeRef> typeContext,
-        GenericTypeProxy generic)
+        GenericTypeReference generic)
     {
         var curDict = generic.GenericArguments;
         var finDict = new Dictionary<GenericTemplate, LLVMTypeRef>();
@@ -65,9 +66,9 @@ public class GenericType(string name, GenericModule module, bool packed): Generi
         {
             ILType ilType => ilType.Type,
             GenericTemplate temp => typeContext[temp],
-            GenericTypeProxy genType =>
-                InstantiateGenericType(typeContext, genType),
-            _ => throw new Exception()
+            GenericTypeReference genType => InstantiateGenericType(typeContext, genType),
+            PointerType ptrType => InstantiatePointerType(typeContext, ptrType),
+            _ => throw new UnreachableException()
         };
     }
 

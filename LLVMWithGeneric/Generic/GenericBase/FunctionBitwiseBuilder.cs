@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using LLVMSharp.Interop;
 namespace LLVMWithGeneric.Generic;
 
@@ -7,10 +8,7 @@ public partial class GenericStaticFunc
         string name,
         BitwiseType type) : IOperation
     {
-        private readonly GenericValue _lhs = LHS;
-        private readonly GenericValue _rhs = RHS;
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
-        private readonly BitwiseType _type = type;
 
         public void Instantiate(
             LLVMValueRef function,
@@ -20,10 +18,10 @@ public partial class GenericStaticFunc
             GenericModule module)
         {
             var builder = module.Builder;
-            var lhs = GetLLVMValueRef(valueContext, _lhs);
-            var rhs = GetLLVMValueRef(valueContext, _rhs);
+            var lhs = GetLLVMValueRef(valueContext, LHS);
+            var rhs = GetLLVMValueRef(valueContext, RHS);
 
-            var value = _type switch
+            var value = type switch
             {
                 // Bitwise
                 BitwiseType.AND  => builder.BuildAnd(lhs, rhs, Return.Name),
@@ -35,7 +33,8 @@ public partial class GenericStaticFunc
                 BitwiseType.LSHR => builder.BuildLShr(lhs, rhs, Return.Name),
                 BitwiseType.ASHR => builder.BuildAShr(lhs, rhs, Return.Name),
 
-                _ => throw new ArgumentOutOfRangeException()
+                // Default, impossible to reach
+                _ => throw new UnreachableException("Impossible exception")
             };
 
             valueContext[Return.ID] = value;
@@ -88,9 +87,7 @@ public partial class GenericStaticFunc
 
     public GenericValue BuildAShr(GenericValue LHS, GenericValue RHS, string name)
         => BuildBitwise(LHS, RHS, name, BitwiseType.ASHR);
-
-    // ===== Not (Unary) =====
-    // LLVM 没有单独的 NOT 指令：not x == xor x, -1 (all ones)
+    
 
     private class NotOperation(GenericValue Value, string name) : IOperation
     {

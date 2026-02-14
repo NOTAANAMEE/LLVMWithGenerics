@@ -20,7 +20,7 @@ public class GenericTemplate(string name): IType
     public string Name { get; } = name;
 }
 
-public class GenericTypeProxy: IType
+public class GenericTypeReference : IType
 {
     public string Name { get; }
     
@@ -28,7 +28,7 @@ public class GenericTypeProxy: IType
 
     public GenericType Type { get; }
 
-    public GenericTypeProxy(IType[] generics, GenericType type)
+    public GenericTypeReference(IType[] generics, GenericType type)
     {
         Name = type.Name + $"<{
             string.Join(",", generics.Select(g => g.Name))

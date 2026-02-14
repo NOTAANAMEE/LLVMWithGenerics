@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using LLVMSharp.Interop;
 
 namespace LLVMWithGeneric.Generic;
@@ -33,7 +34,8 @@ public partial class GenericStaticFunc
                 AddSubType.FSUB => builder.BuildFSub(lhs, rhs, Return.Name),
                 AddSubType.NSWSUB => builder.BuildNSWSub(lhs, rhs, Return.Name),
                 AddSubType.NUWSUB => builder.BuildNUWSub(lhs, rhs, Return.Name),
-                _ => throw new ArgumentOutOfRangeException()
+                // Default, impossible to reach
+                _ => throw new UnreachableException()
             };
             valueContext[Return.ID] = value;
         }
