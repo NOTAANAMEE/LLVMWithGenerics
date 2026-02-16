@@ -42,3 +42,7 @@ This project makes use of the following open-source libraries:
 - [LLVMSharp](https://github.com/dotnet/LLVMSharp)
 - [LLVM](https://github.com/llvm/llvm-project)
 
+## By the way
+
+Happy Lunar New Year! (Or Spring Festival)
+
