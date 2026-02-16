@@ -12,6 +12,7 @@ A small C# library that builds concrete LLVM IR from generic type/function defin
 
 - .NET 9.0
 - LLVMSharp 20.1.2
+- LLVM
 
 ## Ownership model
 
@@ -32,4 +33,12 @@ A small C# library that builds concrete LLVM IR from generic type/function defin
 
 - The emitted IR contains only concrete types and instructions. Generic abstractions exist only at build time.
 - Error messages are designed to be clear when template bindings are missing or invalid.
+- On macOS, set DYLD_LIBRARY_PATH to your LLVM library directory.
+
+## Acknowledgements
+
+This project makes use of the following open-source libraries:
+
+- [LLVMSharp](https://github.com/dotnet/LLVMSharp)
+- [LLVM](https://github.com/llvm/llvm-project)
 
