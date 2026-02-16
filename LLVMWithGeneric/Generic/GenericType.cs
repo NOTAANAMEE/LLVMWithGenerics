@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using LLVMSharp.Interop;
 
 namespace LLVMWithGeneric.Generic;
@@ -6,7 +7,8 @@ namespace LLVMWithGeneric.Generic;
 /// <summary>
 /// Generic struct type definition that can be instantiated to an LLVM named struct.
 /// </summary>
-public class GenericType(string name, GenericModule module, bool packed): GenericBase
+public class GenericType(string name, GenericModule module, bool packed): 
+    GenericBase
 {
     /// <summary>
     /// Owning module used for mangling and instantiation.
@@ -22,7 +24,7 @@ public class GenericType(string name, GenericModule module, bool packed): Generi
     /// Whether the struct is packed.
     /// </summary>
     public bool Packed { get; } = packed;
-    
+
     /// <summary>
     /// Template parameters for this generic type.
     /// </summary>

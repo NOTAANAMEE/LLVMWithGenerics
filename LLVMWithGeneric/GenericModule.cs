@@ -102,6 +102,15 @@ public class GenericModule
         return func.Instantiate(typeContext);
     }
 
+    public LLVMValueRef InstantiateFunction(
+        GenericStaticFunc func,
+        LLVMTypeRef[] typeContext)
+    {
+        return InstantiateFunction(func, 
+            MakeTypeContext(func.GenericTemplates.ToArray(), 
+                typeContext));
+    }
+
     /// <summary>
     /// Instantiates a generic type with a concrete template binding.
     /// </summary>
@@ -113,5 +122,22 @@ public class GenericModule
         Dictionary<GenericTemplate, LLVMTypeRef> typeContext)
     {
         return type.Instantiate(typeContext);
+    }
+
+    public LLVMTypeRef InstantiateType(
+        GenericType type,
+        LLVMTypeRef[] typeContext)
+    {
+        return InstantiateType(type,
+            MakeTypeContext(type.GenericTemplates.ToArray(),
+                typeContext));
+    }
+    
+    private static Dictionary<GenericTemplate, LLVMTypeRef> MakeTypeContext(
+        GenericTemplate[] templates, LLVMTypeRef[] types)
+    {
+        return templates
+            .Zip(types, (k, v) => new {k, v})
+            .ToDictionary(t => t.k, t => t.v);
     }
 }
