@@ -19,7 +19,7 @@ A small C# library that builds concrete LLVM IR from generic type/function defin
 
 ## Minimal usage
 
-- later
+- See [Example](./Example)
 
 ## Project structure
 
