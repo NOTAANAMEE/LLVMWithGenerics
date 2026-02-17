@@ -27,7 +27,8 @@ public partial class GenericStaticFunc
     /// <summary>
     /// Instantiates this generic function with concrete template bindings.
     /// </summary>
-    public LLVMValueRef Instantiate(Dictionary<GenericTemplate, LLVMTypeRef> typeContext)
+    public LLVMValueRef Instantiate(
+        Dictionary<GenericTemplate, LLVMTypeRef> typeContext)
     {
         // 1. function type
         var parameters = InstantiateParam(typeContext);
@@ -45,12 +46,16 @@ public partial class GenericStaticFunc
             var basicBlk = module.Context.AppendBasicBlock(function, block.Name);
             blockDict.Add(block, basicBlk);
         }
+        Dictionary<ulong, LLVMValueRef> valueDict = [];
+        for (uint i = 0; i < parameter.Count; i++)
+        {
+            valueDict[parameter[(int)i].ID] = function.GetParam(i);
+        }
         //4. implement function body
         foreach (var blk in _blocks)
         {
             var basicBlk = blockDict[blk];
             module.Builder.PositionAtEnd(basicBlk);
-            Dictionary<ulong, LLVMValueRef> valueDict = [];
             foreach (var iop in blk.Operations)
                 iop.Instantiate(
                     function,

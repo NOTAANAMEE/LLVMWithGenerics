@@ -61,8 +61,8 @@ class Program
         var entry = add.AddBlock("entry");
         add.PositionAtEnd(entry);
 
-        var c1 = new GenericValueFromLLVM(LLVMValueRef.CreateConstInt(LLVMTypeRef.Int32, 1, false));
-        var c2 = new GenericValueFromLLVM(LLVMValueRef.CreateConstInt(LLVMTypeRef.Int32, 2, false));
+        var c1 = add.GetParameter(0);
+        var c2 = add.GetParameter(1);
         var sum = add.BuildAdd(c1, c2, "sum");
         add.BuildRet(sum);
 

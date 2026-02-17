@@ -30,6 +30,8 @@ public partial class GenericStaticFunc(string name, GenericModule module) :
     /// </summary>
     public IType ReturnType = new ILType(LLVMTypeRef.Void);
 
+    private List<GenericValue> parameter = [];
+
     internal void AddGenericTemplate(List<string> names)
     {
         foreach (var name in names)
@@ -44,6 +46,16 @@ public partial class GenericStaticFunc(string name, GenericModule module) :
     public void SetParameter(List<IType> parameters)
     {
         this.Parameters = parameters;
+        var i = 0;
+        foreach (var name in parameters)
+        {
+            parameter.Add(new GenericFuncVariable("param" + i++));
+        }
+    }
+
+    public GenericValue GetParameter(int i)
+    {
+        return parameter[i];
     }
 
     /// <summary>
