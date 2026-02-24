@@ -91,9 +91,14 @@ public class GenericSwitchValue: GenericValue
     }
 }
 
+/// <summary>
+/// Represents a static variable declared on a generic type.
+/// </summary>
 public class GenericStaticVariable(string name): GenericValue
 {
+    /// <summary>
+    /// Declared variable name on the generic owner type.
+    /// </summary>
     public string Name { get; } = name;
 }
-
 

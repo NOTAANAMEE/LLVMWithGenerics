@@ -120,6 +120,12 @@ public class GenericType(string name, GenericModule module, bool packed):
         };
     }
 
+    /// <summary>
+    /// Declares a static variable on this generic type definition.
+    /// </summary>
+    /// <param name="variableName">Declared name of the static variable.</param>
+    /// <param name="variableType">Declared type of the static variable.</param>
+    /// <returns>A handle that identifies the static variable in builder APIs.</returns>
     public GenericStaticVariable AddStaticVariable(string variableName, IType variableType)
     {
         var variable = new GenericStaticVariable(variableName);
@@ -144,6 +150,12 @@ public class GenericType(string name, GenericModule module, bool packed):
         }
     }
 
+    /// <summary>
+    /// Gets the declared type for a static variable on this generic type.
+    /// </summary>
+    /// <param name="value">The static variable handle.</param>
+    /// <returns>The declared static variable type.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is not a <see cref="GenericStaticVariable"/>.</exception>
     public IType GetStaticVarType(GenericValue value)
     {
         return value is not GenericStaticVariable variable ? 

@@ -358,6 +358,15 @@ public partial class GenericStaticFunc
         return tmp.Return;
     }
 
+    /// <summary>
+    /// Loads a static variable declared on a generic type for the current concrete owner arguments.
+    /// </summary>
+    /// <param name="type">The generic owner type that declares the static variable.</param>
+    /// <param name="types">Concrete type arguments for the owner type in the current function context.</param>
+    /// <param name="staticVariable">The static variable handle returned by <c>AddStaticVariable</c>.</param>
+    /// <param name="name">The generated SSA value name.</param>
+    /// <returns>A generic function value representing the loaded result.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="staticVariable"/> is not declared on <paramref name="type"/>.</exception>
     public GenericValue BuildLoadGenericStaticVariable(
         GenericType type, IType[] types,
         GenericValue staticVariable, string name)
@@ -370,6 +379,13 @@ public partial class GenericStaticFunc
         return tmp.Return;
     }
 
+    /// <summary>
+    /// Stores a value into a static variable declared on a generic type for the given concrete owner arguments.
+    /// </summary>
+    /// <param name="storedValue">The value to store.</param>
+    /// <param name="ownerArgs">Concrete type arguments of the static variable owner type.</param>
+    /// <param name="owner">The generic owner type that declares the static variable.</param>
+    /// <param name="staticVariable">The static variable handle returned by <c>AddStaticVariable</c>.</param>
     public void BuildStoreGenericStaticVariable(
         GenericValue storedValue,
         IType[] ownerArgs,
