@@ -9,7 +9,7 @@ public partial class GenericStaticFunc
         string name,
         AddSubType type) : IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(
             LLVMValueRef function,
@@ -46,7 +46,7 @@ public partial class GenericStaticFunc
     {
         return value switch
         {
-            GenericFuncVariable genVal => valueContext[genVal.ID],
+            GenericFuncValue genVal => valueContext[genVal.ID],
             GenericValueFromLLVM llvmVal => llvmVal.Value,
             _ => throw new UnreachableException()
         };

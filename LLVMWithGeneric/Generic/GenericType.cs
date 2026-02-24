@@ -35,7 +35,7 @@ public class GenericType(string name, GenericModule module, bool packed):
     /// </summary>
     public IType[] Fields { get; private set; } = [];
 
-    private Dictionary<GenericStaticVariable, IType> staticVariables;
+    private readonly Dictionary<GenericStaticVariable, IType> staticVariables = [];
 
     internal LLVMTypeRef Instantiate(
         Dictionary<GenericTemplate, LLVMTypeRef> typeContext)
@@ -156,6 +156,4 @@ public class GenericType(string name, GenericModule module, bool packed):
         return variable is GenericStaticVariable variableVar &&
                staticVariables.ContainsKey(variableVar);
     }
-    
-    
 }

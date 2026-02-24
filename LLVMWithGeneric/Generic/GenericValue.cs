@@ -34,7 +34,7 @@ public class GenericValueFromLLVM(LLVMValueRef constant) : GenericValue
 /// <summary>
 /// Named variable used within a generic function.
 /// </summary>
-public class GenericFuncVariable(string name): GenericValue
+public class GenericFuncValue(string name): GenericValue
 {
     /// <summary>
     /// Variable name.

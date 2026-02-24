@@ -12,6 +12,9 @@ internal sealed class SimpleMangler : GenericMangler
 
     public string MangleType(string funcName, LLVMTypeRef[] typeNames)
         => $"{funcName}<{string.Join(",", typeNames.Select(t => t.ToString()))}>";
+
+    public string MangleStaticVariable(string typeName, string varName)
+        => $"{typeName}_{varName}";
 }
 
 internal sealed class SimpleTypeRegister : TypeRegister
