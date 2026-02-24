@@ -49,7 +49,7 @@ public partial class GenericStaticFunc(string name, GenericModule module) :
         var i = 0;
         foreach (var name in parameters)
         {
-            parameter.Add(new GenericFuncVariable("param" + i++));
+            parameter.Add(new GenericFuncValue("param" + i++));
         }
     }
 

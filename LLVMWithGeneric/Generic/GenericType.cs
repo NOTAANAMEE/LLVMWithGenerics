@@ -156,6 +156,4 @@ public class GenericType(string name, GenericModule module, bool packed):
         return variable is GenericStaticVariable variableVar &&
                staticVariables.ContainsKey(variableVar);
     }
-    
-    
 }

@@ -10,7 +10,7 @@ public partial class GenericStaticFunc
         string name,
         bool onMem): IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
 
         public void Instantiate(LLVMValueRef function, 
@@ -33,7 +33,7 @@ public partial class GenericStaticFunc
         string name,
         bool onMem): IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
 
         public void Instantiate(LLVMValueRef function, 
@@ -70,7 +70,7 @@ public partial class GenericStaticFunc
         GenericValue pointer,
         string name) : IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(LLVMValueRef function, 
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext,
@@ -112,7 +112,7 @@ public partial class GenericStaticFunc
         string name,
         bool inbound): IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(
             LLVMValueRef function, 
@@ -139,7 +139,7 @@ public partial class GenericStaticFunc
         uint idx,
         string name): IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
 
         public void Instantiate(
@@ -163,7 +163,7 @@ public partial class GenericStaticFunc
         GenericStaticVariable staticVariable, 
         string name): IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(
             LLVMValueRef function,

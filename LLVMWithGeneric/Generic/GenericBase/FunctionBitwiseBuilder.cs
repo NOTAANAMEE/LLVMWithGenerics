@@ -8,7 +8,7 @@ public partial class GenericStaticFunc
         string name,
         BitwiseType type) : IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(
             LLVMValueRef function,
@@ -91,7 +91,7 @@ public partial class GenericStaticFunc
 
     private class NotOperation(GenericValue Value, string name) : IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(
             LLVMValueRef function,

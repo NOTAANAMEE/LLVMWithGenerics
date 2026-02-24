@@ -12,7 +12,7 @@ public partial class GenericStaticFunc
         string name
         ) : IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
         
         public void Instantiate(
             LLVMValueRef function1,
@@ -47,7 +47,7 @@ public partial class GenericStaticFunc
     {
         private readonly Dictionary<GenericTemplate, IType> _fnTypeContext =
             MakeTypeContext(function.GenericTemplates.ToArray(), genericTypeList);
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
         
         public void Instantiate(
             LLVMValueRef function1,
@@ -107,7 +107,7 @@ public partial class GenericStaticFunc
         string name
         ): IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(
             LLVMValueRef baseFunction,
@@ -145,7 +145,7 @@ public partial class GenericStaticFunc
         string name
     ): IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(
             LLVMValueRef baseFunction,

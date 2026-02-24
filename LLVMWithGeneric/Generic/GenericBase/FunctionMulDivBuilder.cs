@@ -9,7 +9,7 @@ public partial class GenericStaticFunc
         string name,
         MulDivType type) : IOperation
     {
-        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+        public GenericFuncValue Return { get; } = new GenericFuncValue(name);
 
         public void Instantiate(
             LLVMValueRef function,
