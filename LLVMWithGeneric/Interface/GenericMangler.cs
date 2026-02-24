@@ -16,4 +16,6 @@ public interface GenericMangler
     /// Mangles a type name given the concrete type arguments.
     /// </summary>
     public abstract string MangleType(string funcName, LLVMTypeRef[] typeNames);
+
+    public string MangleStaticVariable(string typeName, string varName);
 }

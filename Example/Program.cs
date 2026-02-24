@@ -73,6 +73,6 @@ class Program
 
         // Print IR
         Console.WriteLine(module.PrintToString());
-        
+        Console.WriteLine(pairI32.PrintToString());
     }
 }

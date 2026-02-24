@@ -91,4 +91,9 @@ public class GenericSwitchValue: GenericValue
     }
 }
 
+public class GenericStaticVariable(string name): GenericValue
+{
+    public string Name { get; } = name;
+}
+
 

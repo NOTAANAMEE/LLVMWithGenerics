@@ -35,6 +35,8 @@ public class GenericType(string name, GenericModule module, bool packed):
     /// </summary>
     public IType[] Fields { get; private set; } = [];
 
+    private Dictionary<GenericStaticVariable, IType> staticVariables;
+
     internal LLVMTypeRef Instantiate(
         Dictionary<GenericTemplate, LLVMTypeRef> typeContext)
     {
@@ -51,6 +53,20 @@ public class GenericType(string name, GenericModule module, bool packed):
         
         var fields = Fields.Select(t => InstantiateType(typeContext, t)).ToArray();
         typeRef.StructSetBody(fields, Packed);
+        
+        // Instantiate static variables
+        foreach (var varPair in staticVariables)
+        {
+            var varType = InstantiateType(typeContext, varPair.Value);
+            var varName = varPair.Key.Name;
+            var globalName = Module.Mangler.MangleStaticVariable(typeRef.StructName, varName);
+            var variable = Module.Module.AddGlobal(varType, globalName);
+            variable.Linkage = LLVMLinkage.LLVMInternalLinkage;
+            unsafe
+            {
+                variable.Initializer = LLVM.ConstNull((LLVMOpaqueType*)varType.Handle);
+            }
+        }
         
         return typeRef;
     }
@@ -104,6 +120,13 @@ public class GenericType(string name, GenericModule module, bool packed):
         };
     }
 
+    public GenericStaticVariable AddStaticVariable(string variableName, IType variableType)
+    {
+        var variable = new GenericStaticVariable(variableName);
+        staticVariables[variable] = variableType;
+        return variable;
+    }
+
     private static LLVMTypeRef InstantiatePointerType(
         Dictionary<GenericTemplate, LLVMTypeRef> typeContext,
         PointerType pointerType
@@ -120,4 +143,19 @@ public class GenericType(string name, GenericModule module, bool packed):
             GenericTemplates.Add(new GenericTemplate(name));
         }
     }
+
+    public IType GetStaticVarType(GenericValue value)
+    {
+        return value is not GenericStaticVariable variable ? 
+            throw new ArgumentException("Invalid value type, needed GenericStaticVariable") : 
+            staticVariables[variable];
+    }
+
+    internal bool CheckStaticVariable(GenericValue variable)
+    {
+        return variable is GenericStaticVariable variableVar &&
+               staticVariables.ContainsKey(variableVar);
+    }
+    
+    
 }

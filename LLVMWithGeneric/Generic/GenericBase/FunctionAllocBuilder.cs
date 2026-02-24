@@ -1,3 +1,4 @@
+using LLVMSharp;
 using LLVMSharp.Interop;
 
 namespace LLVMWithGeneric.Generic;
@@ -113,7 +114,6 @@ public partial class GenericStaticFunc
     {
         public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
 
-
         public void Instantiate(
             LLVMValueRef function, 
             Dictionary<GenericTemplate, LLVMTypeRef> typeContext, 
@@ -156,7 +156,75 @@ public partial class GenericStaticFunc
             valueContext[Return.ID] = ret;
         }
     }
+
+    private class LoadGenericBuilder(
+        GenericType type, 
+        IType[] types,
+        GenericStaticVariable staticVariable, 
+        string name): IOperation
+    {
+        public GenericFuncVariable Return { get; } = new GenericFuncVariable(name);
+
+        public void Instantiate(
+            LLVMValueRef function,
+            Dictionary<GenericTemplate, LLVMTypeRef> typeContext,
+            Dictionary<ulong, LLVMValueRef> valueContext,
+            Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext,
+            GenericModule module)
+        {
+            var ownerArgs = 
+                types.Select(
+                    t => GenericType.InstantiateType(typeContext, t))
+                    .ToArray();
+            var ownerType = module.InstantiateType(type, ownerArgs);
+            var variableType = GenericType.InstantiateType(
+                typeContext,
+                type.GetStaticVarType(staticVariable));
+            var value = !valueContext.TryGetValue(staticVariable.ID, out var value1) ? 
+                GetLLVMValueRef(module, GetName(module, ownerType, staticVariable)) : value1;
+            var ret = module.Builder.BuildLoad2(variableType, value, name);
+            valueContext[Return.ID] = ret;
+        }
+
+        internal static LLVMValueRef GetLLVMValueRef(
+            GenericModule module, string name)
+        {
+            return module.Module.GetNamedGlobal(name);
+        }
+
+        internal static string GetName(
+            GenericModule module,
+            LLVMTypeRef owner, GenericStaticVariable staticVariable)
+        {
+            return module.Mangler.MangleStaticVariable(owner.StructName, staticVariable.Name);
+        }
+    }
     
+    private class StoreGenericBuilder(
+        GenericValue storedValue,
+        IType[] types,
+        GenericType type,
+        GenericStaticVariable staticVariable): IOperation
+    {
+        public void Instantiate(
+            LLVMValueRef function,
+            Dictionary<GenericTemplate, LLVMTypeRef> typeContext,
+            Dictionary<ulong, LLVMValueRef> valueContext,
+            Dictionary<GenericFuncBlock, LLVMBasicBlockRef> blockContext,
+            GenericModule module)
+        {
+            var ownerArgs = 
+                types.Select(
+                        t => GenericType.InstantiateType(typeContext, t))
+                    .ToArray();
+            var ownerType = module.InstantiateType(type, ownerArgs);
+            var value = GetLLVMValueRef(valueContext, storedValue);
+            var variable = !valueContext.TryGetValue(staticVariable.ID, out var value1) ? 
+                LoadGenericBuilder.GetLLVMValueRef(module, 
+                    LoadGenericBuilder.GetName(module, ownerType, staticVariable)) : value1;
+            module.Builder.BuildStore(value, variable);
+        }
+    }
     
     
     public GenericValue BuildAlloca(IType type, string name)
@@ -288,5 +356,28 @@ public partial class GenericStaticFunc
         var tmp = new StructGEPBuilder(type, pointer,idx, name);
         this._currentBlock!.Operations.Add(tmp);
         return tmp.Return;
+    }
+
+    public GenericValue BuildLoadGenericStaticVariable(
+        GenericType type, IType[] types,
+        GenericValue staticVariable, string name)
+    {
+        CheckBlock();
+        if (!type.CheckStaticVariable(staticVariable))
+            throw new ArgumentException("The variable does not exist in the type");
+        var tmp = new LoadGenericBuilder(type, types, (GenericStaticVariable)staticVariable, name);
+        _currentBlock!.Operations.Add(tmp);
+        return tmp.Return;
+    }
+
+    public void BuildStoreGenericStaticVariable(
+        GenericValue storedValue,
+        IType[] ownerArgs,
+        GenericType owner,
+        GenericStaticVariable staticVariable)
+    {
+        CheckBlock();
+        _currentBlock!.Operations.Add(
+            new StoreGenericBuilder(storedValue, ownerArgs, owner, staticVariable));
     }
 }
